@@ -6,6 +6,8 @@ extends CharacterBody3D
 @onready var standing_collision_shape = $standing_collision_shape
 @onready var crouching_collision_shape = $crouching_collision_shape
 @onready var ray_cast_3d = $RayCast3D
+@onready var actionable_finder: Area3D = $Direction/ActionableFinder
+
 
 # Speed vars
 
@@ -35,6 +37,15 @@ var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
+# DIALOG BOX TEST 
+# !!! > Change Actionable to raycast  
+func _unhandled_input(_event: InputEvent) -> void:
+	if Input.is_action_just_pressed("ui_accept"):
+		var actionable =actionable_finder.get_overlapping_areas()
+		if actionable.size() > 0:
+			actionable[0].action()
+			return
+
 func _input(event):
 	if event is InputEventMouseMotion:
 		
@@ -42,7 +53,8 @@ func _input(event):
 		
 		rotate_y(deg_to_rad(-event.relative.x * mouse_sens))
 		head.rotate_x(deg_to_rad(-event.relative.y * mouse_sens))
-		head.rotate.x = clamp(head.rotation.x,deg_to_rad(-89),deg_to_rad(89))
+		
+		#head.rotate.x = clamp(head.rotation.x,deg_to_rad(-89),deg_to_rad(89))
 
 func _physics_process(delta):
 	
@@ -79,7 +91,7 @@ func _physics_process(delta):
 		velocity.y -= gravity * delta
 
 	# Handle Jump.
-	if Input.is_action_just_pressed("ui_accept") and is_on_floor():
+	if Input.is_action_just_pressed("Jump") and is_on_floor():
 		velocity.y = JUMP_VELOCITY
 
 	# Get the input direction and handle the movement/deceleration.
